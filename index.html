@@ -243,6 +243,17 @@ a{color:var(--or2)}
   .battle-art{min-height:230px}
   .battle-inner{padding:18px 18px 16px}
 }
+
+/* ============ 每日走势 ============ */
+.trend{margin-top:16px;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:18px 20px 14px}
+.tr-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:6px}
+.tr-legend{display:flex;gap:16px;font-size:12px;color:var(--dim)}
+.tr-legend b{color:#fff;font-weight:700}
+.tr-legend span{display:flex;align-items:center;gap:6px}
+.tr-legend i{width:22px;height:3px;border-radius:2px;display:inline-block}
+.tr-svg{width:100%;height:auto;display:block}
+.tr-note{margin-top:6px;font-size:11px;color:var(--dim);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:640px){.trend{padding:14px 12px 10px}.tr-legend{font-size:11px;gap:10px}}
 </style>
 </head>
 <body>
@@ -276,9 +287,9 @@ a{color:var(--or2)}
       <div class="battle-legend"><span><i class="red"></i>红拳套 · 张颖</span><span><i class="blue"></i>蓝拳套 · 陈锵</span></div>
     </div>
     <div class="battle-art">
-      <img class="battle-bg" src="assets/ko-banner.jpg" alt="张颖与陈锵的拳击漫画对战插画">
+      <img class="battle-bg" id="battleArt" src="assets/ko-zy-win.jpg" alt="张颖与陈锵的拳击油画对战插画">
       <div class="battle-shade"></div>
-      <div class="battle-note">漫画示意 · 文字随战况自动更新</div>
+      <div class="battle-note">油画示意 · 插画与文字随战况自动切换</div>
     </div>
   </div>
 
@@ -382,6 +393,20 @@ a{color:var(--or2)}
       </div>
     </div>
     <div class="reasons" id="reasons"></div>
+  </div>
+
+  <!-- ============ 赛季日走势 ============ -->
+  <div class="trend">
+    <div class="tr-head">
+      <div class="sec-t"><i class="bar-accent"></i>赛季日走势 <em>DAILY TRAJECTORY</em></div>
+      <div class="tr-legend" id="trLegend">
+        <span><i style="background:#ff5a1f"></i>张颖 <b id="trZY">–</b></span>
+        <span><i style="background:#4aa8ff"></i>陈锵 <b id="trCQ">–</b></span>
+      </div>
+    </div>
+    <div class="sec-d" style="margin-bottom:10px">赛季开打至今，每个比赛日打完后的累计失分（越低越好）。曲线下降代表当天结果更贴近预测。</div>
+    <svg class="tr-svg" id="trSvg" viewBox="0 0 1000 340" preserveAspectRatio="none" role="img" aria-label="张颖与陈锵的每日累计失分折线图"></svg>
+    <div class="tr-note"><span id="trRange">–</span><span>按每日已结束比赛累计战绩推算 · 同战绩按官方种子序</span></div>
   </div>
 
   <!-- ============ 页脚 ============ -->
@@ -700,6 +725,12 @@ function renderBanner(t){
     ? '张颖 <span class="pin">平手</span> 陈锵'
     : (zyLead ? '张颖 <span class="ko">KO</span> 陈锵' : '陈锵 <span class="pin">小胜</span> 张颖');
   $("battleTitle").innerHTML = title;
+  const art = $("battleArt");
+  const artKey = tie ? "zy" : (zyLead ? "zy" : "cq");
+  if (art && art.dataset.k !== artKey){
+    art.dataset.k = artKey;
+    art.src = artKey === "zy" ? "assets/ko-zy-win.jpg" : "assets/ko-cq-win.jpg";
+  }
   const lead = tie ? "两人同分" : ((zyLead ? "张颖" : "陈锵") + " 领先 " + gap + " 分");
   $("battleSub").innerHTML =
     "按“每差一名扣 1 分”累计：张颖 <b>" + t.zy + "</b> 分 · 陈锵 <b>" + t.cq + "</b> 分，" +
@@ -915,6 +946,65 @@ document.querySelectorAll(".tab").forEach(b=>{
 });
 $("refreshBtn").addEventListener("click", load);
 
+/* =========================================================
+   5. 赛季日走势折线图
+   ========================================================= */
+async function loadHistory(){
+  try{
+    const r = await fetch("history.json", {cache:"no-store"});
+    if(!r.ok) throw new Error("http " + r.status);
+    const j = await r.json();
+    if(!j || !Array.isArray(j.points) || j.points.length < 2) throw new Error("bad history.json");
+    renderTrend(j);
+  }catch(e){
+    $("trRange").textContent = "历史数据暂不可用（需要 history.json）";
+  }
+}
+
+function renderTrend(j){
+  const pts = j.points;
+  const svg = $("trSvg");
+  const W = 1000, H = 340, L = 46, R = 16, T = 18, B = 46;
+  const iw = W - L - R, ih = H - T - B;
+  const vals = pts.flatMap(p => [p.zy, p.cq]);
+  const maxV = Math.max(...vals), minV = Math.min(...vals);
+  const pad = Math.max(6, Math.round((maxV - minV) * 0.18));
+  const hi = maxV + pad, lo = Math.max(0, minV - pad);
+  const x = i => L + (pts.length === 1 ? iw/2 : (i / (pts.length - 1)) * iw);
+  const y = v => T + ih - ((v - lo) / Math.max(1, hi - lo)) * ih;
+  const path = (key) => pts.map((p, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(p[key]).toFixed(1)).join(" ");
+  const dots = (key, color) => pts.map((p, i) =>
+    `<circle cx="${x(i).toFixed(1)}" cy="${y(p[key]).toFixed(1)}" r="3.2" fill="${color}" opacity=".95"><title>${p.d} · ${key === "zy" ? "张颖" : "陈锵"} ${p[key]} 分（当日 ${p.g} 场）</title></circle>`).join("");
+
+  // 网格与 Y 轴刻度
+  const ticks = 4, grid = [];
+  for(let k = 0; k <= ticks; k++){
+    const v = lo + (hi - lo) * k / ticks, yy = y(v);
+    grid.push(`<line x1="${L}" y1="${yy.toFixed(1)}" x2="${W-R}" y2="${yy.toFixed(1)}" stroke="rgba(255,255,255,.08)"/>`);
+    grid.push(`<text x="${L-10}" y="${(yy+4).toFixed(1)}" fill="rgba(255,255,255,.45)" font-size="11" text-anchor="end">${Math.round(v)}</text>`);
+  }
+  // X 轴日期标签（最多 8 个）
+  const step = Math.max(1, Math.ceil(pts.length / 8));
+  const xlab = pts.map((p, i) => (i % step === 0 || i === pts.length - 1)
+    ? `<text x="${x(i).toFixed(1)}" y="${H-B+22}" fill="rgba(255,255,255,.5)" font-size="11" text-anchor="middle">${p.d.slice(5)}</text>` : "").join("");
+  const areaZY = `<path d="${path("zy")}" stroke="#ff5a1f" stroke-width="2.4" fill="none" stroke-linejoin="round"/>`;
+  const areaCQ = `<path d="${path("cq")}" stroke="#4aa8ff" stroke-width="2.4" fill="none" stroke-linejoin="round"/>`;
+  const last = pts[pts.length - 1];
+  const yz = y(last.zy), yc = y(last.cq);
+  const overlap = Math.abs(yz - yc) < 18;
+  const zyDy = overlap ? -8 : -9, cqDy = overlap ? 16 : 18;
+  const endLab = `
+    <text x="${x(pts.length-1)-6}" y="${yz + zyDy}" fill="#ff8a5c" font-size="12" font-weight="700" text-anchor="end">张颖 ${last.zy}</text>
+    <text x="${x(pts.length-1)-6}" y="${yc + cqDy}" fill="#79c0ff" font-size="12" font-weight="700" text-anchor="end">陈锵 ${last.cq}</text>`;
+
+  svg.innerHTML = `
+    <rect x="${L}" y="${T}" width="${iw}" height="${ih}" fill="rgba(255,255,255,.02)"/>
+    ${grid.join("")}${xlab}${areaZY}${areaCQ}${dots("zy","#ff5a1f")}${dots("cq","#4aa8ff")}${endLab}`;
+  $("trZY").textContent = last.zy + " 分";
+  $("trCQ").textContent = last.cq + " 分";
+  $("trRange").textContent = `${pts[0].d} → ${last.d} · 共 ${pts.length} 个比赛日 · 最后更新 ${j.updated || ""}`;
+}
+
 /* 启动：先用同源 data.json 秒开，再异步升级为实时数据 */
 (async function boot(){
   const daily = await loadDaily();
@@ -924,6 +1014,7 @@ $("refreshBtn").addEventListener("click", load);
     STATE.rows = fallbackRows(); STATE.mode = "snapshot"; STATE.ts = SNAPSHOT.ts;
   }
   renderAll();
+  loadHistory();
   load();                                  // 实时数据到位后自动覆盖
   setInterval(load, 5 * 60 * 1000);
 })();
