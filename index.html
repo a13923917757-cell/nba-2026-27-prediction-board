@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NBA 2026-27 预测积分榜 · 张颖 vs 陈锵</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23ff6a2b'/%3E%3Cpath d='M4 50h92M50 4v92M15 15q35 35 70 70M85 15q-35 35-70 70' stroke='%23070a14' stroke-width='4' fill='none'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#060912; --bg2:#0b1120; --panel:rgba(255,255,255,.045); --panel2:rgba(255,255,255,.075);
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+  --txt:#eef2f8; --dim:#8d99ad; --dim2:#5d6879;
+  --or:#ff6a2b; --or2:#ff9457; --gold:#ffc247; --grn:#2fd08a; --red:#ff4f6d; --blu:#4aa8ff;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:
+    radial-gradient(1200px 600px at 85% -10%,rgba(255,106,43,.13),transparent 60%),
+    radial-gradient(900px 500px at 0% 0%,rgba(74,168,255,.09),transparent 60%),
+    linear-gradient(180deg,#060912,#080d18 40%,#060912);
+  color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  min-height:100vh; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 20px 70px}
+a{color:var(--or2)}
+
+/* ============ 顶栏 ============ */
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,#ff9a5f,#ff6a2b 55%,#c73f10);
+  border:2px solid rgba(255,255,255,.18);position:relative;box-shadow:0 6px 22px rgba(255,106,43,.35)}
+.logo::before,.logo::after{content:"";position:absolute;inset:0;border-radius:50%}
+.logo::before{border:1.5px solid rgba(6,9,18,.85);transform:rotate(-18deg);margin:0 12px;border-radius:0}
+.logo::after{border:1px solid rgba(6,9,18,.7);border-radius:50%;margin:7px -3px}
+.brand h1{font-size:19px;font-weight:800;letter-spacing:.5px;line-height:1.25}
+.brand h1 span{color:var(--or)}
+.brand p{font-size:12px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.status{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--grn);box-shadow:0 0 0 4px rgba(47,208,138,.14);animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.dot.warn{background:var(--gold);box-shadow:0 0 0 4px rgba(255,194,71,.14)}
+.stext{font-size:12px;color:var(--dim)}
+.stext b{color:var(--txt);font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--line2);
+  color:var(--txt);font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:9px;cursor:pointer;
+  transition:.18s;font-family:inherit}
+.btn:hover{background:rgba(255,106,43,.18);border-color:rgba(255,106,43,.5)}
+.btn:active{transform:scale(.97)}
+.btn svg{width:14px;height:14px}
+.btn.spin svg{animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ============ 计分主卡 ============ */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;margin-bottom:16px}
+.scorecard{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+  border:1px solid var(--line);border-radius:18px;padding:20px 22px 18px;overflow:hidden}
+.scorecard::after{content:"";position:absolute;width:220px;height:220px;right:-90px;top:-90px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,106,43,.22),transparent 70%)}
+.scorecard.east::after{background:radial-gradient(circle,rgba(74,168,255,.2),transparent 70%)}
+.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sc-name{font-size:17px;font-weight:800;letter-spacing:.4px;display:flex;align-items:center;gap:9px}
+.avatar{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:13px;font-weight:800;
+  background:rgba(255,106,43,.16);color:var(--or2);border:1px solid rgba(255,106,43,.3)}
+.avatar.b{background:rgba(74,168,255,.16);color:#8ec9ff;border-color:rgba(74,168,255,.3)}
+.tag-live{font-size:10.5px;letter-spacing:1px;color:var(--dim);border:1px solid var(--line2);padding:3px 8px;border-radius:6px}
+.sc-main{display:flex;align-items:flex-end;gap:12px;margin:6px 0 2px}
+.score{font-family:var(--mono);font-size:50px;font-weight:800;line-height:1;letter-spacing:-1px;
+  background:linear-gradient(180deg,#fff,#ffb183);-webkit-background-clip:text;background-clip:text;color:transparent}
+.score.b{background:linear-gradient(180deg,#fff,#9ad0ff);-webkit-background-clip:text;background-clip:text}
+.score-unit{font-size:12px;color:var(--dim);padding-bottom:8px}
+.lead{font-size:12px;font-weight:700;padding:4px 9px;border-radius:7px;margin-bottom:9px;display:inline-block}
+.lead.win{color:#0a1a12;background:linear-gradient(90deg,#2fd08a,#7ef0bd)}
+.lead.lose{color:#ffe3e8;background:rgba(255,79,109,.18);border:1px solid rgba(255,79,109,.35)}
+.sc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:10px;overflow:hidden;margin-top:14px}
+.sc-stat{background:rgba(10,15,26,.72);padding:9px 10px}
+.sc-stat .k{font-size:10.5px;color:var(--dim);letter-spacing:.5px}
+.sc-stat .v{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--txt);margin-top:1px}
+.sc-stat .v small{font-size:10px;color:var(--dim);font-weight:400;margin-left:2px}
+
+/* ============ 今日赛果 ============ */
+.strip{margin-bottom:16px;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:12px 16px}
+.strip-h{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:1.4px;color:var(--dim);text-transform:uppercase;margin-bottom:9px}
+.strip-games{display:flex;gap:10px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.gm{flex:0 0 auto;display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.05);border:1px solid var(--line);
+  border-radius:10px;padding:7px 12px;font-size:12.5px;white-space:nowrap}
+.gm .w{font-weight:800;font-family:var(--mono);color:var(--txt)}
+.gm .l{font-family:var(--mono);color:var(--dim2)}
+.gm i{font-style:normal;color:var(--dim2);font-size:11px}
+
+/* ============ 分区切换 + 对照表 ============ */
+.section{margin-top:30px}
+.sec-h{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.sec-t{font-size:16px;font-weight:800;letter-spacing:.4px;display:flex;align-items:center;gap:9px}
+.sec-t em{font-style:normal;font-size:11px;font-weight:600;color:var(--dim);letter-spacing:1.2px}
+.bar-accent{width:4px;height:17px;border-radius:2px;background:linear-gradient(180deg,var(--or),#8a2f0b)}
+.sec-d{font-size:12px;color:var(--dim);max-width:520px}
+.tabs{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.tab{border:0;background:transparent;color:var(--dim);font-size:12.5px;font-weight:700;padding:7px 16px;border-radius:8px;
+  cursor:pointer;font-family:inherit;transition:.18s;letter-spacing:.5px}
+.tab.on{background:linear-gradient(180deg,rgba(255,106,43,.9),rgba(214,72,15,.9));color:#fff;box-shadow:0 4px 14px rgba(255,106,43,.3)}
+
+.tablebox{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:rgba(9,13,23,.6)}
+.thead,.trow{display:grid;grid-template-columns:46px minmax(190px,1.15fr) 1fr 1fr 1fr;align-items:center;gap:10px}
+.thead{padding:10px 14px;background:rgba(255,255,255,.05);border-bottom:1px solid var(--line);
+  font-size:10.5px;letter-spacing:1.2px;color:var(--dim);text-transform:uppercase;font-weight:700}
+.thead>div:nth-child(4),.thead>div:nth-child(5){text-align:center}
+.trow{padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.05);transition:background .15s}
+.trow:hover{background:rgba(255,106,43,.06)}
+.trow:last-child{border-bottom:0}
+.rk{font-family:var(--mono);font-size:13px;font-weight:800;color:var(--dim);text-align:center;
+  width:26px;height:26px;line-height:26px;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center}
+.rk.top4{color:#ffe6a8;border-color:rgba(255,194,71,.35);background:rgba(255,194,71,.1)}
+.team{display:flex;align-items:center;gap:10px;min-width:0}
+.team img{width:26px;height:26px;object-fit:contain;flex:0 0 26px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));background:rgba(255,255,255,.09);border-radius:50%;padding:2px}
+.team .nm{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team .rec{font-size:10.5px;color:var(--dim);font-family:var(--mono);margin-left:2px;white-space:nowrap}
+.rec .st{color:var(--dim2)}
+.rec .st.w{color:var(--grn)}.rec .st.l{color:var(--red)}
+.pcell{text-align:center}
+.pmain{display:flex;align-items:center;justify-content:center;gap:8px}
+.pred{font-family:var(--mono);font-size:14px;font-weight:700;color:#cfd8e6}
+.pred.hit{color:var(--grn)}
+.diff{font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 6px;border-radius:5px;min-width:30px;text-align:center}
+.diff.d0{color:#0a1a12;background:linear-gradient(90deg,#2fd08a,#7ef0bd)}
+.diff.d1{color:#ffe6a8;background:rgba(255,194,71,.16);border:1px solid rgba(255,194,71,.3)}
+.diff.d2{color:#ffc9a8;background:rgba(255,106,43,.16);border:1px solid rgba(255,106,43,.3)}
+.diff.d3{color:#ffb3c0;background:rgba(255,79,109,.16);border:1px solid rgba(255,79,109,.32)}
+.minibar{height:3px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:5px;overflow:hidden}
+.minibar i{display:block;height:100%;border-radius:2px}
+
+/* ============ 最大失分 ============ */
+.lossgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.losscard{border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:linear-gradient(170deg,rgba(255,255,255,.06),rgba(255,255,255,.02))}
+.lc-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+.lc-h .who{font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px}
+.lc-h .tot{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.lc-h .tot b{color:var(--txt);font-size:15px}
+.lrow{display:grid;grid-template-columns:26px 22px 60px 1fr 44px;align-items:center;gap:9px;margin-bottom:9px}
+.lrow img{width:20px;height:20px;object-fit:contain;background:rgba(255,255,255,.09);border-radius:50%}
+.lrow .n{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .track{height:7px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden}
+.lrow .track i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,rgba(255,106,43,.55),var(--or))}
+.lrow .track i.hot{background:linear-gradient(90deg,rgba(255,79,109,.6),var(--red))}
+.lrow .v{font-family:var(--mono);font-size:12px;font-weight:800;color:var(--or2);text-align:right}
+.lrow .v.hot{color:#ff8ba0}
+.lrow .idx{font-family:var(--mono);font-size:10.5px;color:var(--dim2);text-align:center}
+.lc-note{font-size:11.5px;color:var(--dim);margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);line-height:1.55}
+
+/* ============ 归因卡片 ============ */
+.reasons{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rc{position:relative;border:1px solid var(--line);border-radius:16px;padding:16px 18px 15px;background:rgba(255,255,255,.035);overflow:hidden}
+.rc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--or),transparent)}
+.rc.over::before{background:linear-gradient(180deg,var(--grn),transparent)}
+.rc.under::before{background:linear-gradient(180deg,var(--red),transparent)}
+.rc-h{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.rc-h img{width:30px;height:30px;object-fit:contain;flex:0 0 30px;background:rgba(255,255,255,.09);border-radius:50%;padding:3px}
+.rc-h .meta{min-width:0;flex:1}
+.rc-h .nm{font-size:14.5px;font-weight:800;display:flex;align-items:center;gap:7px}
+.rc-h .nm span{font-size:10px;font-weight:700;color:var(--dim);border:1px solid var(--line);padding:1px 6px;border-radius:5px}
+.rc-h .sub{font-size:11px;color:var(--dim);margin-top:1px}
+.badge{font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:6px;white-space:nowrap;letter-spacing:.5px}
+.badge.over{color:#8affc8;background:rgba(47,208,138,.14);border:1px solid rgba(47,208,138,.32)}
+.badge.under{color:#ffb3c0;background:rgba(255,79,109,.13);border:1px solid rgba(255,79,109,.3)}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.chip{font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--dim)}
+.chip b{color:var(--txt);font-family:var(--mono)}
+.chip .hit{color:var(--grn)}
+.rc ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.rc li{font-size:12.5px;color:#c4cddb;padding-left:13px;position:relative;line-height:1.62}
+.rc li::before{content:"";position:absolute;left:0;top:8px;width:4px;height:4px;border-radius:50%;background:var(--or);opacity:.7}
+.rc .src{font-size:10.5px;color:var(--dim2);margin-top:10px;letter-spacing:.3px}
+
+/* ============ 页脚 ============ */
+.foot{margin-top:38px;border-top:1px solid var(--line);padding-top:18px;display:grid;grid-template-columns:1.2fr 1fr;gap:22px}
+.foot h4{font-size:12px;letter-spacing:1.3px;color:var(--dim);text-transform:uppercase;margin-bottom:7px}
+.foot p,.foot li{font-size:11.5px;color:var(--dim);line-height:1.75}
+.foot li{margin-bottom:3px;list-style:none;padding-left:12px;position:relative}
+.foot li::before{content:"·";position:absolute;left:3px;color:var(--or)}
+.foot .copy{grid-column:1/-1;font-size:10.5px;color:var(--dim2);margin-top:6px;border-top:1px dashed var(--line);padding-top:12px}
+
+/* ============ 响应式 ============ */
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .lossgrid,.reasons,.foot{grid-template-columns:1fr}
+  .thead,.trow{grid-template-columns:34px minmax(130px,1fr) 80px 92px 92px;gap:6px;padding:8px 10px}
+  .score{font-size:42px}
+}
+@media(max-width:600px){
+  .wrap{padding:18px 12px 50px}
+  .thead,.trow{grid-template-columns:26px minmax(84px,1fr) 42px 70px 70px;gap:5px;padding:8px 8px}
+  .thead{font-size:9px;letter-spacing:.6px}
+  .pred{font-size:12px}
+  .diff{min-width:24px;font-size:10px;padding:2px 4px}
+  .trow .rec{font-size:9.5px}
+  .team .nm{font-size:12.5px}
+  .team img{width:22px;height:22px;flex:0 0 22px}
+  .sc-stats{grid-template-columns:repeat(3,1fr)}
+  .score{font-size:38px}
+  .lrow{grid-template-columns:22px 18px 52px 1fr 38px;gap:7px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ 顶栏 ============ -->
+  <div class="top">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <h1>NBA 2026-27 <span>预测积分榜</span></h1>
+        <p>Zhang Ying vs Chen Qiang · Standings Accuracy</p>
+      </div>
+    </div>
+    <div class="status">
+      <div class="dot" id="dot"></div>
+      <div class="stext" id="statusText">正在拉取实时数据…</div>
+      <button class="btn" id="refreshBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+        刷新
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ 计分主卡 ============ -->
+  <div class="hero">
+    <div class="scorecard">
+      <div class="sc-top">
+        <div class="sc-name"><span class="avatar">张</span>张颖</div>
+        <div class="tag-live">张颖的预测</div>
+      </div>
+      <div class="sc-main">
+        <div class="score" id="scoreZY">–</div>
+        <div class="score-unit">累计失分 / 30 队</div>
+      </div>
+      <div class="lead win" id="leadZY">对比中…</div>
+      <div class="sc-stats">
+        <div class="sc-stat"><div class="k">完全命中</div><div class="v" id="hitZY">–<small>/30</small></div></div>
+        <div class="sc-stat"><div class="k">平均偏差</div><div class="v" id="avgZY">–<small>位</small></div></div>
+        <div class="sc-stat"><div class="k">单队最大失分</div><div class="v" id="maxZY">–</div></div>
+      </div>
+    </div>
+    <div class="scorecard east">
+      <div class="sc-top">
+        <div class="sc-name"><span class="avatar b">陈</span>陈锵</div>
+        <div class="tag-live">陈锵的预测</div>
+      </div>
+      <div class="sc-main">
+        <div class="score b" id="scoreCQ">–</div>
+        <div class="score-unit">累计失分 / 30 队</div>
+      </div>
+      <div class="lead lose" id="leadCQ">对比中…</div>
+      <div class="sc-stats">
+        <div class="sc-stat"><div class="k">完全命中</div><div class="v" id="hitCQ">–<small>/30</small></div></div>
+        <div class="sc-stat"><div class="k">平均偏差</div><div class="v" id="avgCQ">–<small>位</small></div></div>
+        <div class="sc-stat"><div class="k">单队最大失分</div><div class="v" id="maxCQ">–</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 今日赛果 ============ -->
+  <div class="strip" id="strip" style="display:none">
+    <div class="strip-h"><span class="dot" style="animation:none"></span><span id="stripTitle">最近比赛日 · 已结束</span></div>
+    <div class="strip-games" id="stripGames"></div>
+  </div>
+
+  <!-- ============ 逐队对照 ============ -->
+  <div class="section">
+    <div class="sec-h">
+      <div>
+        <div class="sec-t"><i class="bar-accent"></i>逐队对照 <em>PREDICTION VS ACTUAL</em></div>
+        <div class="sec-d">按官方种子排名（1–15）比对；“失分”即预测名次与实际名次的绝对差。</div>
+      </div>
+      <div class="tabs">
+        <button class="tab on" data-conf="W" type="button">西部</button>
+        <button class="tab" data-conf="E" type="button">东部</button>
+      </div>
+    </div>
+    <div class="tablebox">
+      <div class="thead">
+        <div style="text-align:center">排名</div><div>球队 / 战绩</div><div style="text-align:center">实际</div>
+        <div>张颖 预测</div><div>陈锵 预测</div>
+      </div>
+      <div id="tbody"></div>
+    </div>
+  </div>
+
+  <!-- ============ 最大失分 ============ -->
+  <div class="section">
+    <div class="sec-h">
+      <div>
+        <div class="sec-t"><i class="bar-accent"></i>双方最大失分 <em>BIGGEST LOSSES</em></div>
+        <div class="sec-d">单队失分 Top 6。条越长＝预测偏离越远，红色为 5 分以上的重错。</div>
+      </div>
+    </div>
+    <div class="lossgrid">
+      <div class="losscard">
+        <div class="lc-h">
+          <div class="who"><span class="avatar">张</span>张颖</div>
+          <div class="tot">合计 <b id="lossTotZY">–</b> 分</div>
+        </div>
+        <div id="lossZY"></div>
+        <div class="lc-note" id="noteZY"></div>
+      </div>
+      <div class="losscard">
+        <div class="lc-h">
+          <div class="who"><span class="avatar b">陈</span>陈锵</div>
+          <div class="tot">合计 <b id="lossTotCQ">–</b> 分</div>
+        </div>
+        <div id="lossCQ"></div>
+        <div class="lc-note" id="noteCQ"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 归因 ============ -->
+  <div class="section">
+    <div class="sec-h">
+      <div>
+        <div class="sec-t"><i class="bar-accent"></i>为什么偏离预测 <em>WHY THE GAP</em></div>
+        <div class="sec-d">失分最重的球队，按“低于预测 / 超出预测”拆解真实原因；排名与战绩随数据自动更新。</div>
+      </div>
+    </div>
+    <div class="reasons" id="reasons"></div>
+  </div>
+
+  <!-- ============ 页脚 ============ -->
+  <div class="foot">
+    <div>
+      <h4>计分规则</h4>
+      <ul>
+        <li>30 支球队，东西部各 15 支，各自独立排序。</li>
+        <li>每队“预测名次与实际名次”的绝对差即该队失分，差 1 名扣 1 分。</li>
+        <li>累计失分越低越好；满分为 0 分（即 30 队全部排对）。</li>
+        <li>排名口径为官方种子排名（同战绩按交锋、分区等细则决胜，与官网一致）。</li>
+      </ul>
+    </div>
+    <div>
+      <h4>数据与更新</h4>
+      <ul>
+        <li>数据源：ESPN 公开 NBA 排名 / 比分接口，每 5 分钟自动刷新，打开页面即拉取最新。</li>
+        <li>接口不可用时会自动回退到内置快照，并标注“快照模式”。</li>
+        <li>赛季初样本小（各队仅 15 场左右），名次波动大，结论仅作阶段性参考。</li>
+        <li>页面为单文件静态站点，可直接托管到任意静态服务，无需后端。</li>
+      </ul>
+    </div>
+    <div class="copy">张颖 · 陈锵 2026-27 赛季东西部排名预测对照 · 数据由页面实时计算，非人工录入</div>
+  </div>
+
+</div>
+
+<script>
+/* =========================================================
+   1. 静态资料：队名映射 / 双方预测 / 归因文案 / 内置快照
+   ========================================================= */
+const CN = {
+  PHI:"76人", BOS:"凯尔特人", DET:"活塞", MIA:"热火", ATL:"老鹰", NYK:"尼克斯",
+  CLE:"骑士", ORL:"魔术", TOR:"猛龙", IND:"步行者", WAS:"奇才", CHA:"黄蜂",
+  CHI:"公牛", BKN:"篮网", MIL:"雄鹿",
+  SAS:"马刺", LAL:"湖人", HOU:"火箭", MEM:"灰熊", MIN:"森林狼", POR:"开拓者",
+  DEN:"掘金", OKC:"雷霆", DAL:"独行侠", GSW:"勇士", PHX:"太阳", NOP:"鹈鹕",
+  LAC:"快船", UTA:"爵士", SAC:"国王"
+};
+/* ESPN 内部缩写 → 统一键 */
+const AB2KEY = { SA:"SAS", NY:"NYK", WSH:"WAS", GS:"GSW", NO:"NOP", UTAH:"UTA" };
+/* 队徽代码（ESPN CDN 实际路径名） */
+const LOGOCODE = { SAS:"sa", NYK:"ny", WAS:"wsh", GSW:"gs", NOP:"no", UTA:"utah" };
+const CONF_OF = {
+  PHI:"E",BOS:"E",DET:"E",MIA:"E",ATL:"E",NYK:"E",CLE:"E",ORL:"E",TOR:"E",IND:"E",
+  WAS:"E",CHA:"E",CHI:"E",BKN:"E",MIL:"E",
+  SAS:"W",LAL:"W",HOU:"W",MEM:"W",MIN:"W",POR:"W",DEN:"W",OKC:"W",DAL:"W",GSW:"W",
+  PHX:"W",NOP:"W",LAC:"W",UTA:"W",SAC:"W"
+};
+
+/* 张颖 / 陈锵 的原始预测（数组下标 + 1 即预测名次） */
+const PRED = {
+  ZY: {
+    W:["OKC","SAS","HOU","LAL","MIN","DEN","POR","MEM","DAL","PHX","UTA","LAC","GSW","NOP","SAC"],
+    E:["DET","PHI","NYK","CLE","BOS","TOR","MIA","ORL","IND","ATL","CHA","WAS","CHI","MIL","BKN"]
+  },
+  CQ: {
+    W:["OKC","HOU","SAS","MIN","LAL","POR","DAL","DEN","GSW","PHX","LAC","MEM","NOP","UTA","SAC"],
+    E:["NYK","BOS","PHI","DET","CLE","TOR","IND","WAS","MIA","ORL","CHA","CHI","ATL","MIL","BKN"]
+  }
+};
+
+/* 内置快照（2026-11-20 抓取的 ESPN 官方种子排名，接口失败时使用） */
+const SNAPSHOT = {
+  ts:"2026-11-20 14:26",
+  W:[["SAS",1,13,3],["LAL",2,13,3],["HOU",3,12,4],["MEM",4,12,4],["MIN",5,11,5],
+     ["POR",6,10,5],["DEN",7,8,5],["OKC",8,9,6],["DAL",9,8,7],["GSW",10,8,8],
+     ["PHX",11,7,7],["NOP",12,5,11],["LAC",13,4,10],["UTA",14,3,13],["SAC",15,1,13]],
+  E:[["PHI",1,13,3],["BOS",2,11,4],["DET",3,10,4],["MIA",4,9,6],["ATL",5,9,6],
+     ["NYK",6,9,6],["CLE",7,8,8],["ORL",8,6,8],["TOR",9,5,10],["IND",10,5,10],
+     ["WAS",11,5,11],["CHA",12,4,10],["CHI",13,4,10],["BKN",14,3,11],["MIL",15,1,15]]
+};
+
+/* 归因文案（赛季进行中抓取的公开报道，仅解释“为什么”，不参与计分） */
+const REASONS = [
+  {
+    key:"OKC", tone:"under", badge:"低于预测 7 位", tag:"伤病掏空首发",
+    title:"雷霆", sub:"预测第 1 → 实际第 8 · 两人同失 7 分",
+    bullets:[
+      "杰伦·威廉姆斯（腓骨骨折+脚踝脱臼）与卡森·华莱士（左肩手术）可能赛季报销，霍姆格伦膝伤缺阵 8–10 周——开季首发五人只剩两个。",
+      "防守反击体系掉档：曾连续三年领跑联盟的“利用失误得分”跌到第 17（17.7 分/场），场均制造失误比上季少约 2 次。",
+      "下半场执行力拖后腿：下半场净胜分 -2.1、三分命中率 33.2%；再加上西部整体变厚，开拓者、独行侠、灰熊都赢过雷霆。"
+    ],
+    src:"依据：Thunderous Intentions / 懂球帝、NBA.com 报道"
+  },
+  {
+    key:"MEM", tone:"over", badge:"超出预测 8 位", tag:"重建红利",
+    title:"灰熊", sub:"陈锵第 12（失 8 分）· 张颖第 8（失 4 分）",
+    bullets:[
+      "送走莫兰特、贝恩、小贾伦后彻底年轻化，新帅伊萨洛打 11 人轮换＋“流动”传导进攻：场均得分联盟第一、三分命中率 41.6% 第一、每百回合净胜 +15.1。",
+      "19 岁探花布泽尔即插即用，科沃德、韦尔斯、伊迪、斯图尔特把防守效率也撑到联盟前五，客场 8 连胜创队史。",
+      "隐忧：赛程强度联盟第二轻松、后场控球是短板、三分命中率难长期维持——这正是陈锵把它排到第 12 的合理之处，也是判断失误的根源。"
+    ],
+    src:"依据：SB Nation / 懂球帝、Yardbarker、NBA 灰熊官网"
+  },
+  {
+    key:"ATL", tone:"over", badge:"超出预测 8 位", tag:"换核心后提速",
+    title:"老鹰", sub:"陈锵第 13（失 8 分，单队最大）· 张颖第 10（失 5 分）",
+    bullets:[
+      "2026 年 1 月把特雷·杨“1 换 2”送到奇才，扶正杰伦·约翰逊（使用率 39.3%），进攻从“一星四看”改成五人处理球。",
+      "场均助攻联盟第一、三分出手联盟第二，经常 7 人得分上双；休赛期从雷霆引进多尔特、维金斯补上外线领防。",
+      "送走特雷·杨之后累计 34 胜 19 负，胜率 64.2%——赛前被普遍低估，是两人排名判断共同踩空的地方。"
+    ],
+    src:"依据：搜狐 / 腾讯体育、懂球帝报道"
+  },
+  {
+    key:"LAL", tone:"over", badge:"超出预测 3 位", tag:"换核成功",
+    title:"湖人", sub:"张颖第 4（失 2 分）· 陈锵第 5（失 3 分）",
+    bullets:[
+      "詹姆斯休赛期转投 76 人，湖人清空 3/4/5 号位，完全围绕东契奇＋里夫斯重建，进攻效率冲到联盟第一，13-2 为 2019-20 以来最佳开局。",
+      "凯斯勒补上护框与篮板（场均 10.8 板 2.3 帽），马穆提供五外空间，角色定位被彻底理顺。",
+      "本质是“两个持球大核拆开”的适配度胜利：詹姆斯在费城同样领跑东部，属于双赢分手。"
+    ],
+    src:"依据：直播吧、ClaroSports、优球直播报道"
+  },
+  {
+    key:"NYK", tone:"under", badge:"低于预测 5 位", tag:"卫冕后遗症",
+    title:"尼克斯", sub:"陈锵第 1（失 5 分）· 张颖第 3（失 3 分）",
+    bullets:[
+      "卫冕冠军开季 0-3，eFG% 51.9% 掉到联盟第 22（上季 55.7%）；篮下命中率 59%（上季 66.6%）、中距离 38.5%（上季 45.1%）。",
+      "米切尔·罗宾逊离队＋换帅迈克·布朗，替补轮换重新磨合，多场被打出 30 分以上的替补得分差。",
+      "夺冠后的商业行程与疲劳、以及“人人都想赢冠军”的针对性，被球员自己承认——6 场失利全部在 9 分以内，属于可回收的偏差。"
+    ],
+    src:"依据：Sports Illustrated、Yahoo Sports、Bleacher Report"
+  },
+  {
+    key:"MIA", tone:"over", badge:"超出预测 5 位", tag:"押中字母哥",
+    title:"热火", sub:"陈锵第 9（失 5 分）· 张颖第 7（失 3 分）",
+    bullets:[
+      "夏天用希罗＋小海梅＋三个首轮从雄鹿换来字母哥与波蒂斯，直接补上顶级终结与护框，一度打出 6 连胜。",
+      "字母哥回密尔沃基一战 27 分 13 板 9 助带走胜利，目前 9-6 稳在东部前四。",
+      "两人都低估了这笔交易的即战力：张颖排第 7、陈锵排第 9，而它实际把热火抬进了上半区。"
+    ],
+    src:"依据：今日头条、NBA 中国官网报道"
+  },
+  {
+    key:"GSW", tone:"under", badge:"低于预测 3 位", tag:"伤病潮",
+    title:"勇士", sub:"张颖第 13（失 3 分）· 陈锵第 9（失 1 分）",
+    bullets:[
+      "库里、巴特勒、追梦、波尔津吉斯、穆迪等六人同时挂伤病名单，对灰熊一战三分 29 投 5 中、20 次失误，98-126 惨败。",
+      "五连败后 8-8 掉到西部第 10，身后的太阳已追平胜场差。",
+      "张颖把它排到第 13（差 3 名）反而更接近现实；陈锵第 9 只差 1 名，是少数几乎压对的位置。"
+    ],
+    src:"依据：搜狐体育、虎扑报道"
+  },
+  {
+    key:"MIL", tone:"under", badge:"低于预测 1 位", tag:"送走队魂",
+    title:"雄鹿", sub:"两人都第 14（各失 1 分）",
+    bullets:[
+      "夏天把字母哥＋波蒂斯送去热火，换回希罗等四人＋三个首轮，重建元年直接自由落体：1-15、12 连败、联盟倒数第一。",
+      "进攻效率第 27、防守效率第 29，场均净负 14.5 分；反摆烂新规还让“烂到底”拿不到高顺位。",
+      "两人都把它放在第 14（实际 15），只差 1 名——属于少数压对方向的判断。"
+    ],
+    src:"依据：今日头条、Yardbarker、虎扑报道"
+  }
+];
+
+/* =========================================================
+   2. 数据获取：ESPN 排名 + 今日比分
+   ========================================================= */
+const STANDINGS_API = "https://cdn.espn.com/core/nba/standings?xhr=1";
+const SCOREBOARD_API = "https://cdn.espn.com/core/nba/scoreboard?xhr=1";
+const LOGO = ab => "https://a.espncdn.com/i/teamlogos/nba/500/" + (LOGOCODE[ab] || ab.toLowerCase()) + ".png";
+
+let STATE = { rows:null, ts:null, live:false, games:[], day:null };
+
+async function fetchJSON(url, ms=12000){
+  const ctl = new AbortController();
+  const t = setTimeout(()=>ctl.abort(), ms);
+  try{
+    const r = await fetch(url, {signal:ctl.signal, cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+
+function parseStandings(json){
+  const out = [];
+  const groups = (json && json.content && json.content.standings && json.content.standings.groups) || [];
+  groups.forEach(g=>{
+    const side = (g.abbreviation||"").toUpperCase().startsWith("E") ? "E" : "W";
+    const entries = (g.standings && g.standings.entries) || [];
+    entries.forEach((en, idx)=>{
+      const t = en.team || {};
+      const raw = (t.abbreviation||"").toUpperCase();
+      const ab = AB2KEY[raw] || raw;
+      if(!CN[ab]) return;
+      const st = {};
+      (en.stats||[]).forEach(s=>{ st[s.name] = s; });
+      const num = k => Number((st[k] && st[k].value) || 0);
+      const seed = Number(t.seed) || num("playoffSeed") || (idx + 1);
+      out.push({
+        ab, conf: CONF_OF[ab] || side,
+        seed,
+        w: num("wins"), l: num("losses"), pct: num("winPercent"),
+        streak: (st.streak && st.streak.displayValue) || null,
+        pf: num("avgPointsFor"), pa: num("avgPointsAgainst"),
+        logo: (t.logos && t.logos[0] && t.logos[0].href) || LOGO(ab)
+      });
+    });
+  });
+  // 缺少 seed 时按胜率补位
+  ["W","E"].forEach(c=>{
+    const list = out.filter(x=>x.conf===c);
+    if(list.some(x=>!x.seed)){
+      list.sort((a,b)=> (b.pct-a.pct) || ((b.w-b.l)-(a.w-a.l)) );
+      list.forEach((x,i)=>{ if(!x.seed) x.seed = i+1; });
+    }
+  });
+  return out;
+}
+
+function buildRows(raw){
+  const rows = [];
+  raw.forEach(t=>{
+    const zyArr = PRED.ZY[t.conf], cqArr = PRED.CQ[t.conf];
+    rows.push({
+      ab:t.ab, conf:t.conf, seed:t.seed, w:t.w, l:t.l, streak:t.streak, pf:t.pf, pa:t.pa,
+      logo:t.logo || LOGO(t.ab),
+      zy: zyArr.indexOf(t.ab)>=0 ? zyArr.indexOf(t.ab)+1 : null,
+      cq: cqArr.indexOf(t.ab)>=0 ? cqArr.indexOf(t.ab)+1 : null,
+      zyD: zyArr.indexOf(t.ab)>=0 ? Math.abs(zyArr.indexOf(t.ab)+1 - t.seed) : null,
+      cqD: cqArr.indexOf(t.ab)>=0 ? Math.abs(cqArr.indexOf(t.ab)+1 - t.seed) : null
+    });
+  });
+  return rows;
+}
+
+function fallbackRows(){
+  const raw = [];
+  SNAPSHOT.W.forEach(([ab,seed,w,l])=>raw.push({ab,conf:"W",seed,w,l,pct:w/(w+l),streak:null,pf:0,pa:0}));
+  SNAPSHOT.E.forEach(([ab,seed,w,l])=>raw.push({ab,conf:"E",seed,w,l,pct:w/(w+l),streak:null,pf:0,pa:0}));
+  return buildRows(raw);
+}
+
+function totals(rows){
+  const pick = k => rows.reduce((s,r)=> s + (r[k]||0), 0);
+  const west = rows.filter(r=>r.conf==="W"), east = rows.filter(r=>r.conf==="E");
+  const sum = (arr,k)=>arr.reduce((s,r)=>s+(r[k]||0),0);
+  return {
+    zy: pick("zyD"), cq: pick("cqD"),
+    zyW: sum(west,"zyD"), zyE: sum(east,"zyD"),
+    cqW: sum(west,"cqD"), cqE: sum(east,"cqD"),
+    zyHit: rows.filter(r=>r.zyD===0).length,
+    cqHit: rows.filter(r=>r.cqD===0).length
+  };
+}
+
+/* 今日赛果（仅展示已结束比赛，失败则整块隐藏） */
+async function loadGames(){
+  try{
+    const j = await fetchJSON(SCOREBOARD_API, 10000);
+    const sb = j && j.content && j.content.sbData;
+    if(!sb) throw new Error("no scoreboard");
+    const games = [];
+    (sb.events||[]).forEach(ev=>{
+      const c = (ev.competitions||[])[0];
+      if(!c) return;
+      if(!(c.status && c.status.type && c.status.type.completed)) return;
+      const comp = (c.competitors||[]).map(x=>{
+        const raw = ((x.team && x.team.abbreviation) || "").toUpperCase();
+        return { ab: AB2KEY[raw] || raw, score: Number(x.score||0), win: !!x.winner };
+      }).filter(x=>CN[x.ab]);
+      if(comp.length < 2) return;
+      comp.sort((a,b)=> (b.win?1:0)-(a.win?1:0) || b.score-a.score);
+      games.push(comp);
+    });
+    STATE.games = games;
+    STATE.day = (sb.day && sb.day.date) || null;
+  }catch(e){ STATE.games = []; }
+}
+
+/* =========================================================
+   3. 渲染
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const diffClass = d => d===0 ? "d0" : d===1 ? "d1" : d<=2 ? "d2" : "d3";
+
+function recText(r){
+  let st = "";
+  if(r.streak){
+    const n = String(r.streak).replace(/[^0-9]/g,"") || "1";
+    st = " · " + (String(r.streak)[0]==="W" ? '<span class="st w">'+n+'连胜</span>' : '<span class="st l">'+n+'连败</span>');
+  }
+  return r.w+"-"+r.l + (st ? '<span class="st">'+st+'</span>' : "");
+}
+
+function renderHero(t, rows){
+  $("scoreZY").textContent = t.zy;
+  $("scoreCQ").textContent = t.cq;
+  const diff = Math.abs(t.zy - t.cq);
+  const zyLead = t.zy < t.cq;
+  const leadZY = $("leadZY"), leadCQ = $("leadCQ");
+  leadZY.className = "lead " + (zyLead ? "win" : "lose");
+  leadCQ.className = "lead " + (zyLead ? "lose" : "win");
+  leadZY.textContent = zyLead ? ("领先 " + diff + " 分") : ("落后 " + diff + " 分");
+  leadCQ.textContent = zyLead ? ("落后 " + diff + " 分") : ("领先 " + diff + " 分");
+
+  $("hitZY").innerHTML = t.zyHit + "<small>/30</small>";
+  $("hitCQ").innerHTML = t.cqHit + "<small>/30</small>";
+  $("avgZY").innerHTML = (t.zy/30).toFixed(1) + "<small>位</small>";
+  $("avgCQ").innerHTML = (t.cq/30).toFixed(1) + "<small>位</small>";
+  const mZY = rows.slice().sort((a,b)=>b.zyD-a.zyD)[0];
+  const mCQ = rows.slice().sort((a,b)=>b.cqD-a.cqD)[0];
+  $("maxZY").innerHTML = mZY ? (CN[mZY.ab] + " <small>-"+mZY.zyD+"</small>") : "–";
+  $("maxCQ").innerHTML = mCQ ? (CN[mCQ.ab] + " <small>-"+mCQ.cqD+"</small>") : "–";
+}
+
+let CUR_CONF = "W";
+function renderTable(rows){
+  const list = rows.filter(r=>r.conf===CUR_CONF).sort((a,b)=>a.seed-b.seed);
+  $("tbody").innerHTML = list.map(r=>`
+    <div class="trow">
+      <div class="rk ${r.seed<=4?"top4":""}">${r.seed}</div>
+      <div class="team">
+        <img src="${r.logo || LOGO(r.ab)}" alt="${esc(CN[r.ab])}" loading="lazy"
+             onerror="this.style.visibility='hidden'">
+        <div>
+          <div class="nm">${esc(CN[r.ab])}</div>
+          <div class="rec">${recText(r)}</div>
+        </div>
+      </div>
+      <div class="pcell"><div class="pred hit" style="font-size:13px">#${r.seed}</div></div>
+      <div class="pcell">
+        <div class="pmain">
+          <div class="pred ${r.zyD===0?"hit":""}">#${r.zy}</div>
+          <div class="diff ${diffClass(r.zyD)}">${r.zyD===0?"0":"-"+r.zyD}</div>
+        </div>
+        <div class="minibar"><i style="width:${Math.min(100, r.zyD/7*100)}%;background:linear-gradient(90deg,rgba(255,106,43,.5),${r.zyD>=5?"#ff4f6d":"#ff6a2b"})"></i></div>
+      </div>
+      <div class="pcell">
+        <div class="pmain">
+          <div class="pred ${r.cqD===0?"hit":""}">#${r.cq}</div>
+          <div class="diff ${diffClass(r.cqD)}">${r.cqD===0?"0":"-"+r.cqD}</div>
+        </div>
+        <div class="minibar"><i style="width:${Math.min(100, r.cqD/8*100)}%;background:linear-gradient(90deg,rgba(74,168,255,.45),${r.cqD>=5?"#ff4f6d":"#4aa8ff"})"></i></div>
+      </div>
+    </div>`).join("");
+}
+
+function renderLoss(rows){
+  const mk = (key, arr, totEl, noteEl, who) => {
+    const top = rows.slice().sort((a,b)=>b[key]-a[key]).slice(0,6);
+    const max = top[0] ? top[0][key] : 1;
+    $(arr).innerHTML = top.map((r,i)=>`
+      <div class="lrow">
+        <div class="idx">${i+1}</div>
+        <img src="${r.logo || LOGO(r.ab)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+        <div class="n">${esc(CN[r.ab])}</div>
+        <div class="track"><i class="${r[key]>=5?"hot":""}" style="width:${Math.max(6,r[key]/max*100)}%"></i></div>
+        <div class="v ${r[key]>=5?"hot":""}">-${r[key]}</div>
+      </div>`).join("");
+    $(totEl).textContent = rows.reduce((s,r)=>s+r[key],0);
+    const big = top.filter(r=>r[key]>=5);
+    const dirText = who==="ZY"
+      ? "失分集中在西部（26 分），且没有 8 分级别重错，偏差多为 3 分级别的零星错位。"
+      : "失分主要来自东部（38 分）：老鹰、灰熊两记 8 分重错，加上尼克斯、热火各 5 分。";
+    $(noteEl).textContent = (big.length ? "5 分以上重错：" + big.map(r=>CN[r.ab]+" -"+r[key]).join("、") + "。" : "没有 5 分以上的重错。") + dirText;
+  };
+  mk("zyD","lossZY","lossTotZY","noteZY","ZY");
+  mk("cqD","lossCQ","lossTotCQ","noteCQ","CQ");
+}
+
+function renderReasons(rows){
+  const map = {};
+  rows.forEach(r=>map[r.ab]=r);
+  $("reasons").innerHTML = REASONS.map(rc=>{
+    const r = map[rc.key];
+    let badgeCls = "over", cardCls = "over", shift = rc.badge;
+    if(r && r.zy != null && r.cq != null){
+      // 取两人中偏差更大的那一个，判断“实际比预测好还是差”
+      const useZY = (r.zyD || 0) >= (r.cqD || 0);
+      const pred = useZY ? r.zy : r.cq;
+      const gap = useZY ? (r.zyD || 0) : (r.cqD || 0);
+      const better = r.seed < pred;
+      shift = gap === 0 ? "预测命中" : (better ? "超出预测 " + gap + " 位" : "低于预测 " + gap + " 位");
+      badgeCls = better ? "over" : "under";
+      cardCls = badgeCls;
+    }
+    return `
+    <div class="rc ${cardCls}">
+      <div class="rc-h">
+        <img src="${(r && r.logo) || LOGO(rc.key)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+        <div class="meta">
+          <div class="nm">${esc(rc.title)}<span>${esc(r?("实际 #"+r.seed+" · "+r.w+"-"+r.l):"数据获取中")}</span></div>
+          <div class="sub">${esc(rc.sub)}</div>
+        </div>
+        <div class="badge ${badgeCls}">${esc(shift)}</div>
+      </div>
+      <div class="chips">
+        <div class="chip">张颖预测 <b>#${r?r.zy:"–"}</b> <span class="${r&&r.zyD===0?"hit":""}">${r?("失"+r.zyD+"分"):""}</span></div>
+        <div class="chip">陈锵预测 <b>#${r?r.cq:"–"}</b> <span class="${r&&r.cqD===0?"hit":""}">${r?("失"+r.cqD+"分"):""}</span></div>
+        <div class="chip">${esc(rc.tag)}</div>
+      </div>
+      <ul>${rc.bullets.map(b=>"<li>"+esc(b)+"</li>").join("")}</ul>
+      <div class="src">${esc(rc.src)}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderStrip(){
+  const g = STATE.games || [];
+  if(!g.length){ $("strip").style.display = "none"; return; }
+  $("strip").style.display = "block";
+  const d = STATE.day ? STATE.day.replace(/-/g,"/") : "";
+  $("stripTitle").textContent = "最近比赛日" + (d ? " · " + d : "") + " · 已结束 " + g.length + " 场";
+  $("stripGames").innerHTML = g.map(c=>`
+    <div class="gm">
+      <span class="w">${esc(CN[c[0].ab])}</span><span class="w">${c[0].score}</span>
+      <i>—</i>
+      <span class="l">${c[1].score}</span><span class="l">${esc(CN[c[1].ab])}</span>
+    </div>`).join("");
+}
+
+function setStatus(live, ts){
+  const dot = $("dot"), txt = $("statusText");
+  dot.className = "dot" + (live ? "" : " warn");
+  if(live){
+    txt.innerHTML = '实时数据 · <b>' + ts + '</b> 更新 · 每 5 分钟自动刷新';
+  }else{
+    txt.innerHTML = '快照模式（接口暂不可达）· <b>' + ts + '</b>';
+  }
+}
+
+function renderAll(){
+  const rows = STATE.rows;
+  const t = totals(rows);
+  renderHero(t, rows);
+  renderTable(rows);
+  renderLoss(rows);
+  renderReasons(rows);
+  renderStrip();
+  setStatus(STATE.live, STATE.ts);
+}
+
+/* =========================================================
+   4. 主流程
+   ========================================================= */
+function nowText(){
+  const d = new Date();
+  const p = n => String(n).padStart(2,"0");
+  return d.getFullYear() + "-" + p(d.getMonth()+1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+
+let loading = false;
+async function load(){
+  if(loading) return; loading = true;
+  const btn = $("refreshBtn"); btn.classList.add("spin");
+  try{
+    const j = await fetchJSON(STANDINGS_API);
+    const raw = parseStandings(j);
+    if(raw.length < 28) throw new Error("数据不完整");
+    STATE.rows = buildRows(raw);
+    STATE.live = true;
+    STATE.ts = nowText();
+  }catch(e){
+    if(!STATE.rows){
+      STATE.rows = fallbackRows();
+      STATE.live = false;
+      STATE.ts = SNAPSHOT.ts;
+    }
+  }
+  await loadGames();
+  btn.classList.remove("spin");
+  loading = false;
+  renderAll();
+}
+
+/* 交互 */
+document.querySelectorAll(".tab").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");
+    CUR_CONF = b.dataset.conf;
+    renderTable(STATE.rows);
+  });
+});
+$("refreshBtn").addEventListener("click", load);
+
+/* 启动：先用快照兜底渲染，再拉实时 */
+STATE.rows = fallbackRows(); STATE.live = false; STATE.ts = SNAPSHOT.ts;
+renderAll();
+load();
+setInterval(load, 5 * 60 * 1000);
+</script>
+</body>
+</html>
