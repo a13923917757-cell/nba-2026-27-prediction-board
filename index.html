@@ -423,7 +423,7 @@ a{color:var(--or2)}
     <div>
       <h4>数据与更新</h4>
       <ul>
-        <li>数据源：ESPN 公开 NBA 排名 / 比分接口，每 5 分钟自动刷新，打开页面即拉取最新。</li>
+        <li>数据源：ESPN 公开 NBA 排名 / 比分接口；每天 14:00 由定时任务更新一次，打开页面读取当日数据文件。</li>
         <li>接口不可用时会自动回退到内置快照，并标注“快照模式”。</li>
         <li>赛季初样本小（各队仅 15 场左右），名次波动大，结论仅作阶段性参考。</li>
         <li>页面为单文件静态站点，可直接托管到任意静态服务，无需后端。</li>
@@ -660,7 +660,10 @@ function totals(rows){
 }
 
 /* 今日赛果（仅展示已结束比赛，失败则整块隐藏） */
-async function loadGames(){
+async function loadGames(pre){
+  if(pre && pre.games && pre.games.length){
+    STATE.games = pre.games; STATE.day = pre.day || null; renderStrip(); return;
+  }
   try{
     const j = await fetchJSON(SCOREBOARD_API, 10000);
     const sb = j && j.content && j.content.sbData;
@@ -681,6 +684,7 @@ async function loadGames(){
     STATE.games = games;
     STATE.day = (sb.day && sb.day.date) || null;
   }catch(e){ STATE.games = []; }
+  renderStrip();
 }
 
 /* =========================================================
@@ -738,7 +742,7 @@ function renderBanner(t){
   const lead = tie ? "两人同分" : ((zyLead ? "张颖" : "陈锵") + " 领先 " + gap + " 分");
   $("battleSub").innerHTML =
     "按“每差一名扣 1 分”累计：张颖 <b>" + t.zy + "</b> 分 · 陈锵 <b>" + t.cq + "</b> 分，" +
-    lead + "<br>" + (STATE.mode === "live" ? "实时数据" : STATE.mode === "daily" ? "每小时快照" : STATE.mode === "cache" ? "缓存数据" : "内置快照") + " · 更新于 " + STATE.ts;
+    lead + "<br>" + (STATE.mode === "live" ? "实时数据" : STATE.mode === "daily" ? "每日更新" : STATE.mode === "cache" ? "缓存数据" : "内置快照") + " · 更新于 " + STATE.ts;
 }
 
 function renderTable(rows){
@@ -850,13 +854,13 @@ function setStatus(mode, ts){
   const dot = $("dot"), txt = $("statusText");
   dot.className = "dot" + (mode === "live" ? "" : " warn");
   if(mode === "live"){
-    txt.innerHTML = '实时数据 · <b>' + ts + '</b> 更新 · 每 5 分钟自动刷新';
+    txt.innerHTML = '实时数据 · <b>' + ts + '</b> 更新';
   }else if(mode === "daily"){
-    txt.innerHTML = '每日快照（Action 每小时抓取）· <b>' + ts + '</b>';
+    txt.innerHTML = '每日更新（14:00 抓取）· <b>' + ts + '</b>';
   }else if(mode === "cache"){
-    txt.innerHTML = '缓存数据（接口暂不可达）· 上次成功 <b>' + ts + '</b>';
+    txt.innerHTML = '缓存数据（数据文件暂不可达）· 上次成功 <b>' + ts + '</b>';
   }else{
-    txt.innerHTML = '快照模式（接口暂不可达）· <b>' + ts + '</b>';
+    txt.innerHTML = '内置快照（数据文件不可达）· <b>' + ts + '</b>';
   }
 }
 
@@ -905,35 +909,21 @@ function readCache(){
 }
 
 let loading = false;
+/* 只读同源数据文件：每天 14:00 由定时任务刷新一次，页面不再主动轮询 */
 async function load(){
   if(loading) return; loading = true;
   const btn = $("refreshBtn"); btn.classList.add("spin");
-  let raw = null;
-  for(let i = 0; i < 2; i++){
-    try{
-      const j = await fetchJSON(STANDINGS_API, 16000);
-      const parsed = parseStandings(j);
-      if(parsed.length >= 28){ raw = parsed; break; }
-    }catch(e){ /* 单次失败继续重试 */ }
-    if(i < 1) await sleep(1200);
-  }
-  if(raw){
-    STATE.rows = buildRows(raw);
-    STATE.mode = "live";
-    STATE.ts = nowText();
-    try{ localStorage.setItem(CACHE_KEY, JSON.stringify({at: Date.now(), ts: STATE.ts, raw})); }catch(e){}
+  const daily = await loadDaily();
+  const c = readCache();
+  if(daily){
+    STATE.rows = buildRows(daily.rows); STATE.mode = "daily"; STATE.ts = daily.updated;
+    try{ localStorage.setItem(CACHE_KEY, JSON.stringify({at: Date.now(), ts: daily.updated, raw: daily.rows})); }catch(e){}
+  }else if(c){
+    STATE.rows = buildRows(c.raw); STATE.mode = "cache"; STATE.ts = c.ts;
   }else{
-    const daily = await loadDaily();
-    const c = readCache();
-    if(daily){
-      STATE.rows = buildRows(daily.rows); STATE.mode = "daily"; STATE.ts = daily.updated;
-    }else if(c){
-      STATE.rows = buildRows(c.raw); STATE.mode = "cache"; STATE.ts = c.ts;
-    }else{
-      STATE.rows = fallbackRows(); STATE.mode = "snapshot"; STATE.ts = SNAPSHOT.ts;
-    }
+    STATE.rows = fallbackRows(); STATE.mode = "snapshot"; STATE.ts = SNAPSHOT.ts;
   }
-  await loadGames();
+  await loadGames(daily);
   btn.classList.remove("spin");
   loading = false;
   renderAll();
@@ -1016,12 +1006,13 @@ function renderTrend(j){
   if(daily){
     STATE.rows = buildRows(daily.rows); STATE.mode = "daily"; STATE.ts = daily.updated;
   }else{
-    STATE.rows = fallbackRows(); STATE.mode = "snapshot"; STATE.ts = SNAPSHOT.ts;
+    const c = readCache();
+    if(c){ STATE.rows = buildRows(c.raw); STATE.mode = "cache"; STATE.ts = c.ts; }
+    else{ STATE.rows = fallbackRows(); STATE.mode = "snapshot"; STATE.ts = SNAPSHOT.ts; }
   }
   renderAll();
   loadHistory();
-  load();                                  // 实时数据到位后自动覆盖
-  setInterval(load, 5 * 60 * 1000);
+  loadGames(daily);                        // 比分条：优先用数据文件，缺失时才请求一次
 })();
 </script>
 </body>

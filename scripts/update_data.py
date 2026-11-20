@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """抓取 NBA 官方排名并生成 data.json（供页面在实时接口不可用时兜底）。"""
-import json, time, urllib.request, urllib.error, os, sys
+import json, time, urllib.request, urllib.error, os, sys, datetime as dt
 
 AB2KEY = {"SA": "SAS", "NY": "NYK", "WSH": "WAS", "GS": "GSW", "NO": "NOP", "UTAH": "UTA"}
 LOGOS = {"SAS": "sa", "NYK": "ny", "WAS": "wsh", "GSW": "gs", "NOP": "no", "UTA": "utah"}
@@ -60,6 +60,51 @@ def normalize(payload):
 
 EAST = {"PHI","BOS","DET","MIA","ATL","NYK","CLE","ORL","TOR","IND","WAS","CHA","CHI","BKN","MIL"}
 
+SB = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={}"
+
+def recent_games(days=3):
+    """抓最近几天已结束的比赛，取最后一个有比赛的日期。"""
+    best = None
+    today = dt.date.today()
+    for k in range(days):
+        d = today - dt.timedelta(days=k)
+        try:
+            j = fetch(SB.format(d.strftime("%Y%m%d")))
+        except Exception:
+            # 接口抖动时退回本地缓存（build_history.py 抓过同一批日期）
+            cache = os.environ.get("SB_CACHE", "/tmp/sb_cache")
+            path = os.path.join(cache, d.strftime("%Y%m%d") + ".json")
+            if os.path.exists(path):
+                try:
+                    j = json.load(open(path, encoding="utf-8"))
+                except Exception:
+                    continue
+            else:
+                continue
+        games = []
+        for ev in j.get("events", []):
+            comp = (ev.get("competitions") or [{}])[0]
+            if not (comp.get("status") or {}).get("type", {}).get("completed"):
+                continue
+            cs = []
+            for c in comp.get("competitors") or []:
+                raw = str((c.get("team") or {}).get("abbreviation", "")).upper()
+                ab = AB2KEY.get(raw, raw)
+                try:
+                    sc = int(c.get("score"))
+                except (TypeError, ValueError):
+                    sc = 0
+                cs.append({"ab": ab, "score": sc, "win": bool(c.get("winner"))})
+            if len(cs) != 2:
+                continue
+            cs.sort(key=lambda x: (not x["win"], -x["score"]))
+            games.append(cs)
+        if games and (best is None):
+            best = {"day": d.strftime("%Y-%m-%d"), "games": games}
+            if k > 0:      # 今天没有比赛完成时，才向前找
+                break
+    return best
+
 def main():
     last_err = None
     for attempt in range(4):
@@ -71,6 +116,10 @@ def main():
                         r["conf"] = "E" if r["ab"] in EAST else "W"
                     out = {"updated": time.strftime("%Y-%m-%d %H:%M", time.localtime()),
                            "source": url.split("/")[2], "rows": rows}
+                    recent = recent_games()
+                    if recent:
+                        out["day"] = recent["day"]
+                        out["games"] = recent["games"]
                     with open("data.json", "w", encoding="utf-8") as f:
                         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
                     print("OK", len(rows), "teams @", out["updated"])

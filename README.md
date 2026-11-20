@@ -18,8 +18,8 @@ GitHub Pages：https://a13923917757-cell.github.io/nba-2026-27-prediction-board/
 
 ## 数据与更新（三层兜底）
 
-1. **实时**：页面直接请求 ESPN 接口（`cdn.espn.com/core/nba/standings`），每 5 分钟刷新一次
-2. **同源快照**：`scripts/update_data.py` 抓取排名写入同源 `data.json`（服务器端无跨域问题，可挂到 GitHub Action 或任意定时任务）
+1. **每日数据文件**：页面只读取同源的 `data.json` / `history.json`，不再轮询接口
+2. **每日抓取**：`scripts/update_data.py` 每天 14:00 由定时任务抓取排名写入 `data.json`（含当日已结束比赛，供比分条使用）
 3. **内置快照**：接口与 data.json 都不可用时，使用页面内置的 2026-11-20 数据
 
 排名口径为官方种子排名（同战绩按交锋/分区细则决胜），数据源为 ESPN。
@@ -71,7 +71,7 @@ python3 scripts/update_data.py
 bash scripts/daily_update.sh
 ```
 
-当前已在云端挂了每天 17:20（北京时间）的定时任务执行该脚本，脚本把 `data.json`、`history.json`、`index.html`、`assets` 同步到本地克隆（默认 `~/nba-repo`）后推送，GitHub Pages 随之更新。GitHub 写权限凭据存放在 `~/.config/nba_gh_token`（不在仓库内）。
+当前已在云端挂了每天 14:00（北京时间）的定时任务执行该脚本，脚本把 `data.json`、`history.json`、`index.html`、`assets` 同步到本地克隆（默认 `~/nba-repo`）后推送，GitHub Pages 随之更新。GitHub 写权限凭据存放在 `~/.config/nba_gh_token`（不在仓库内）。
 
 ## 备注
 
