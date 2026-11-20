@@ -63,6 +63,16 @@ python3 -m http.server 8000
 python3 scripts/update_data.py
 ```
 
+## 每日自动更新
+
+`scripts/daily_update.sh` 一条命令完成全流程：抓最新排名 → 重建逐日走势 → 提交并推送到本仓库。
+
+```bash
+bash scripts/daily_update.sh
+```
+
+当前已在云端挂了每天 17:20（北京时间）的定时任务执行该脚本，脚本把 `data.json`、`history.json`、`index.html`、`assets` 同步到本地克隆（默认 `~/nba-repo`）后推送，GitHub Pages 随之更新。GitHub 写权限凭据存放在 `~/.config/nba_gh_token`（不在仓库内）。
+
 ## 备注
 
 - 横幅插画有两套（张颖 KO 版 / 陈锵小胜版），按当前战况自动切换。
