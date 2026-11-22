@@ -108,7 +108,7 @@ def main():
     try:
         with open("data.json", encoding="utf-8") as f:
             dj = json.load(f)
-        for t in dj.get("teams", []):
+        for t in (dj.get("teams") or dj.get("rows") or []):
             seed_order[t["ab"]] = t["seed"]
     except Exception:
         pass
