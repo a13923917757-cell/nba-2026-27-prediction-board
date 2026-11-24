@@ -165,6 +165,21 @@ def main():
             print(f"{d}  games={len(games):2d}  zy={zy_total:3d}  cq={cq_total:3d}", flush=True)
         d += dt.timedelta(days=1)
 
+    # 历史点冻结：已写入的日期保留原值，避免每天用「今天的种子序」重算导致曲线回改；--refresh 可强制全量重算
+    if os.path.exists(out) and "--refresh" not in sys.argv:
+        try:
+            with open(out, encoding="utf-8") as f:
+                old = json.load(f)
+            old_pts = {p["d"]: p for p in old.get("points", [])}
+            if old_pts:
+                old_last = max(old_pts)
+                merged = [old_pts[x["d"]] if (x["d"] <= old_last and x["d"] in old_pts) else x for x in hist]
+                kept = sum(1 for x in merged if x["d"] <= old_last)
+                hist = merged
+                print(f"历史点冻结：保留 {kept} 天（至 {old_last}），其余按最新数据计算", flush=True)
+        except Exception as e:
+            print("冻结历史失败，改为全量重算：", e)
+
     payload = {
         "updated": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
         "season_start": season_start.isoformat() if season_start else None,
