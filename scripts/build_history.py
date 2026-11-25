@@ -173,10 +173,13 @@ def main():
             old_pts = {p["d"]: p for p in old.get("points", [])}
             if old_pts:
                 old_last = max(old_pts)
-                merged = [old_pts[x["d"]] if (x["d"] <= old_last and x["d"] in old_pts) else x for x in hist]
-                kept = sum(1 for x in merged if x["d"] <= old_last)
-                hist = merged
-                print(f"历史点冻结：保留 {kept} 天（至 {old_last}），其余按最新数据计算", flush=True)
+                # 历史点冻结：old_last 之前整段冻结（含抓取失败缺失的日期），最新一天与之后的日期按最新数据重算
+                prefix = [old_pts[d] for d in sorted(old_pts) if d < old_last]
+                suffix = [x for x in hist if x["d"] >= old_last]
+                if old_last not in [x["d"] for x in suffix]:
+                    suffix = [old_pts[old_last]] + suffix
+                hist = prefix + suffix
+                print(f"历史点冻结：保留 {len(prefix)} 天（至 {old_last}），新增 {len(suffix)} 天", flush=True)
         except Exception as e:
             print("冻结历史失败，改为全量重算：", e)
 
